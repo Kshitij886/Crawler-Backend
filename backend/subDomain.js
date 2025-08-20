@@ -99,5 +99,5 @@ const titleFinder = async () => {
   await subDomainFinder();
   await IPFinder();
   await titleFinder();
-  await browser.close();
+  process.exit();
 })();
