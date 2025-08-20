@@ -2,8 +2,9 @@ const axios = require("axios");
 const dns = require("dns").promises;
 const fs = require("fs");
 const path = require("path");
-const puppeteer = require('puppeteer')
-const cheerio = require('cheerio')
+const puppeteer = require("puppeteer");
+const cheerio = require("cheerio");
+const { analyze, prettyPrint } = require("./techStack");
 
 const dbpath = path.join(__dirname, "ip-database.json");
 
@@ -26,7 +27,6 @@ const subDomainFinder = async () => {
       return;
     subDomains.add(entry.name_value);
   });
-
 };
 
 const searchDB = (subDomain, ip) => {
@@ -64,17 +64,23 @@ const IPFinder = async () => {
 };
 
 const loadHtml = async (link) => {
-  const browser = await puppeteer.launch({headless: true});
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
   try {
-    await page.goto(`https://${link}`,{ waitUntil: "networkidle2", timeout: 10000 })
+    await page.goto(`https://${link}`, {
+      waitUntil: "networkidle2",
+      timeout: 10000,
+    });
     const html = await page.content();
     const $ = cheerio.load(html);
     await browser.close();
     return $;
   } catch (error) {
     try {
-      await page.goto(`http://${link}`, {waitUntil: 'networkidle2', timeout: 10000})
+      await page.goto(`http://${link}`, {
+        waitUntil: "networkidle2",
+        timeout: 10000,
+      });
       const html = await page.content;
       const $ = cheerio.load(html);
       browser.close();
@@ -95,9 +101,18 @@ const titleFinder = async () => {
   }
 };
 
+const techFinder = async () => {
+  for (const domain of subDomains) {
+    const res = await analyze(domain);
+    console.log(`\n Tech stack for ${domain}: \n`)
+    prettyPrint(res);
+  }
+};
+
 (async () => {
   await subDomainFinder();
   await IPFinder();
   await titleFinder();
+  await techFinder();
   process.exit();
 })();
