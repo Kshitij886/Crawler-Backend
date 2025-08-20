@@ -26,7 +26,7 @@ const subDomainFinder = async () => {
       return;
     subDomains.add(entry.name_value);
   });
-  console.log(`Found ${subDomains.size} subdomains:`, [...subDomains]);
+
 };
 
 const searchDB = (subDomain, ip) => {
@@ -53,29 +53,23 @@ const IPFinder = async () => {
   for (const subDomain of subDomains) {
     try {
       const { address } = await dns.lookup(subDomain);
-      console.log("\nfetching data ", subDomain);
       searchDB(subDomain, address);
     } catch (error) {
       toDelete.push(subDomain);
-      console.log("\nsub domain to be deleted", subDomain);
     }
   }
   for (const subDomain of toDelete) {
     subDomains.delete(subDomain);
   }
-  console.log(`Remaining subdomains: ${[...subDomains]}`);
 };
 
 const loadHtml = async (link) => {
   const browser = await puppeteer.launch({headless: true});
   const page = await browser.newPage();
   try {
-   
     await page.goto(`https://${link}`,{ waitUntil: "networkidle2", timeout: 10000 })
     const html = await page.content();
     const $ = cheerio.load(html);
-    console.log(`HTML length for ${link}: ${html.length}`);
-    console.log(`Title tag for ${link}: ${$("title").prop("outerHTML") || "No title tag"}`);
     await browser.close();
     return $;
   } catch (error) {
@@ -83,12 +77,9 @@ const loadHtml = async (link) => {
       await page.goto(`http://${link}`, {waitUntil: 'networkidle2', timeout: 10000})
       const html = await page.content;
       const $ = cheerio.load(html);
-      console.log(`HTML length for ${link}: ${html.length}`);
-      console.log(`Title tag for ${link}: ${$("title").prop("outerHTML") || "No title tag"}`); 
       browser.close();
       return $;
     } catch (error) {
-      console.log(`Error loading ${link}: ${error.message}`);
       return null;
     }
   }
@@ -100,8 +91,6 @@ const titleFinder = async () => {
     if ($) {
       const titleTxt = $("title").text();
       console.log(`Title for ${subDomain}: ${titleTxt || "No title found"}`);
-    } else {
-      console.log(`Failed to load HTML for ${subDomain}`);
     }
   }
 };
@@ -110,4 +99,5 @@ const titleFinder = async () => {
   await subDomainFinder();
   await IPFinder();
   await titleFinder();
+  await browser.close();
 })();
