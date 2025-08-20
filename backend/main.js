@@ -5,7 +5,6 @@ const dns = require('dns');
 const {analyze, prettyPrint}= require('./techStack.js')
 
 
-
 let count = 1;
 // const API_KEY = 'ab519f29-14af-4342-a3e4-326c227eeff7';
 const url = "https://tivazo.com/";
