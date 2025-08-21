@@ -62,6 +62,7 @@ const axios = require("axios");
         h["x-vercel-id"] ? "x-vercel-id present" : "server: vercel"
       );
     }
+    
     if (h["x-nf-request-id"] || /netlify/i.test(h["server"] || "")) {
       addFinding(
         findings,
