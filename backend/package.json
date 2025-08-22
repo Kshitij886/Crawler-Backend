@@ -20,6 +20,7 @@
     "jsdom": "^26.1.0",
     "mongoose": "^8.17.1",
     "net": "^1.0.2",
+    "node-libnmap": "^0.2.15",
     "node-nmap": "^4.0.0",
     "node-rdap": "^0.5.0",
     "node-whois": "^2.1.3",
