@@ -194,8 +194,7 @@ function detectServiceFromPort(port) {
   return portServices[port] || "unknown";
 }
 
-(async () => {
-  const host = "tivazo.com";
+export default async function FindPort(host)  {
   const batchSize = 10;
   const results = [];
 
@@ -205,21 +204,17 @@ function detectServiceFromPort(port) {
       batch.map((p) => checkPort(host, p))
     );
     results.push(...batchResults);
-    batchResults.forEach((result) => {
-      if (result.state == "open") {
-        console.log(
-          `${host}:${result.port} → state: ${result.state}, service: ${result.service}, version: ${result.version}`
-        );
-      }
-    });
   }
-   console.log("___________________________________________________________________________")
+  const openPorts = []
   for (const result of results ){
-   
-    if (result.state === "open") {
-      console.log(
-        `${host}:${result.port} => state: ${result.state}, service: ${result.service}, version: ${result.version}`
-      );
-    } 
+    if (result.state == 'open') {
+      openPorts.push(...result)
+    }
   }
-})();
+  console.log(openPorts)
+  return openPorts
+
+};
+
+FindPort("tivazo.com")
+

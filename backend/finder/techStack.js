@@ -6,6 +6,7 @@ const axios = require("axios");
 
   function normalizeUrl(input) {
     let u = input.trim();
+    console.log(u)
     if (!/^https?:\/\//i.test(u)) u = "https://" + u;
     try {
       const url = new URL(u);
@@ -33,7 +34,11 @@ const axios = require("axios");
 
   function detectFromHeaders(headers, findings) {
     const h = {};
-    for (const [k, v] of Object.entries(headers || {})) h[k.toLowerCase()] = v;
+    for (const [k, v] of Object.entries(headers || {})) {
+      console.log('From header')
+      console.log(h, k, v)
+      h[k.toLowerCase()] = v;
+    }
 
     if (h["server"] && /cloudflare/i.test(h["server"])) {
       addFinding(
@@ -592,5 +597,11 @@ const axios = require("axios");
     }
   }
 
+
+(async () => {
+  const url = 'https://hubstaff.com';
+  const res = await analyze(url);
+  prettyPrint(res)
+})()
 
 module.exports = {analyze, prettyPrint};
