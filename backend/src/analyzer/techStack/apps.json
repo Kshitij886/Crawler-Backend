@@ -124,6 +124,19 @@
 			},
 			"website": "awstats.sourceforge.net"
 		},
+		"Astro": {
+			"cats": [
+				12
+			],
+			"script": [
+				"/_astro/.*\\.js",
+				"astro/.*\\.js"
+			],
+			"html": [
+				"data-astro-"
+			],
+			"website": "https://astro.build/"
+		},
 		"Accessible Portal": {
 			"cats": [
 				1
