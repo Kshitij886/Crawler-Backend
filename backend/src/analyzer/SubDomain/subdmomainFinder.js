@@ -6,7 +6,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import builtwith from "../techStack/techstackFinder.js";
 import { JSDOM } from "jsdom";
-import subdomain from "../../controllers/subdomain.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +13,7 @@ const dbpath = join(__dirname, "ip-database.json");
 const db = JSON.parse(readFileSync(dbpath, "utf8"));
 
 const subDomains = [];
-const API_KEY = "at_qZ1GguT1Yld73xxZWWbpe2Ex4TNpz";
+const API_KEY = "at_WuQtE2tYNsLaOfL5DPSKIfjn2QCMV";
 
 export default async function subDomainFinder(domain) {
   try {
@@ -27,7 +26,9 @@ export default async function subDomainFinder(domain) {
     }
     return subDomains
   } catch (err) {
-    
+    if(!err.message.startsWith('Could not parse CSS stylesheet')){
+      console.log(err.message)
+    } 
   }
 };
 
@@ -102,8 +103,10 @@ const IPFinder = async (subDomain) => {
     };
 
     return result;
-  } catch (error) {
-    console.error("Error in IPFinder:", error.message);
+  } catch (error) {   
+    if(!error.message.startsWith('Could not parse CSS stylesheet')){
+      console.log(error.message)
+    } 
     return {
       subDomain,
       ip: "-",
@@ -119,7 +122,7 @@ const IPFinder = async (subDomain) => {
 const titleFinder = async (subDomain) => {
   try {
     const { data } = await axios.get(`https://${subDomain}`);
-    const dom = new JSDOM(data, {pretendToBeVisual : false});
+    const dom = new JSDOM(data, { resources: "usable", pretendToBeVisual: false, runScripts: "outside-only" });
     return{title: dom.window.document.title};
     
   } catch (error) {
@@ -128,8 +131,9 @@ const titleFinder = async (subDomain) => {
       const dom = new JSDOM(data);
       return {title : dom.window.document.title};
     } catch (error) {
-      console.log("Error" , error.message)
-      
+      if(!error.message.startsWith('Could not parse CSS stylesheet')){
+      console.log(error.message)
+    } 
     }
   }
 
