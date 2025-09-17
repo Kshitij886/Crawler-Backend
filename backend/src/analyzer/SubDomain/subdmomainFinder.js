@@ -2,11 +2,11 @@ import axios from "axios";
 import { promises as dns } from "dns";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { launch } from "puppeteer";
-import { load } from "cheerio";
 import path from "path";
 import { fileURLToPath } from "url";
 import builtwith from "../techStack/techstackFinder.js";
+import { JSDOM } from "jsdom";
+import subdomain from "../../controllers/subdomain.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -116,46 +116,21 @@ const IPFinder = async (subDomain) => {
   }
 };
 
-
-const loadHtml = async (link) => {
-  const browser = await launch({ headless: true });
-  const page = await browser.newPage();
+const titleFinder = async (subDomain) => {
   try {
-    await page.goto(`https://${link}`, {
-      waitUntil: "networkidle2",
-      timeout: 10000,
-    });
-    const html = await page.content();
-    const $ = load(html);
-    await browser.close();
-    return $;
+    const { data } = await axios.get(`https://${subDomain}`);
+    const dom = new JSDOM(data, {pretendToBeVisual : false});
+    return{title: dom.window.document.title};
+    
   } catch (error) {
     try {
-      await page.goto(`http://${link}`, {
-        waitUntil: "networkidle2",
-        timeout: 10000,
-      });
-      const html = await page.content;
-      const $ = load(html);
-      browser.close();
-      return $;
+      const {data} = await axios.get(`http://${subDomain}`)
+      const dom = new JSDOM(data);
+      return {title : dom.window.document.title};
     } catch (error) {
-      return null;
+      console.log("Error" , error.message)
+      
     }
   }
-};
 
-const titleFinder = async (subDomain) => {
-  const $ = await loadHtml(subDomain);
-  try {
-    if ($) {
-      const title = $("title").text();
-      return { title };
-    } else {
-      return { title: "-" };
-    }
-  } catch (error) {
-    console.log(error);
-    return { title: "-" };
-  }
 };
